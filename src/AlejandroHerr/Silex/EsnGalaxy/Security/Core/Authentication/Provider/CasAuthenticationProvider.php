@@ -16,9 +16,10 @@ class CasAuthenticationProvider implements AuthenticationProviderInterface
     protected $options;
     protected $logger;
     //todo remove the checker, add options field, thanks!!
-    public function __construct(UserProviderInterface $userProvider, $logger)
+    public function __construct($options, UserProviderInterface $userProvider, $logger)
     {
-        $this->userProvider   = $userProvider;
+        $this->options = $options;
+        $this->userProvider = $userProvider;
         $this->logger = $logger;
     }
     public function authenticate(TokenInterface $token)
@@ -51,7 +52,7 @@ class CasAuthenticationProvider implements AuthenticationProviderInterface
     protected function checkAuthentication(CasToken $token)
     {
         $credentials = $token->getCredentials();
-        if (!($credentials['section'] == 'ES-BARC-UAB')) {
+        if (!($credentials['section'] == $this->options['section'])) {
             throw new BadCredentialsException('Your section ain\'t authorized');
         }
     }

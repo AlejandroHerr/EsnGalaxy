@@ -17,7 +17,7 @@ class EsnGalaxyServiceProvider implements ServiceProviderInterface
                 $app['security.authentication_listener.'.$name.'.cas'] = $app['security.authentication_listener.cas._proto']($name, $options);
             }
             if (!isset($app['security.authentication_provider.'.$name.'.cas'])) {
-                $app['security.authentication_provider.'.$name.'.cas'] = $app['security.authentication_provider.cas._proto']($name);
+                $app['security.authentication_provider.'.$name.'.cas'] = $app['security.authentication_provider.cas._proto']($name, $options);
             }
             $app['security.authentication_entry_point.' . $name . '.cas'] = $app->share(function () use ($app, $options) {
                 return new CasAuthenticationEntryPoint($app['security.http_utils'],$options);
@@ -60,9 +60,10 @@ class EsnGalaxyServiceProvider implements ServiceProviderInterface
             });
         });
 
-        $app['security.authentication_provider.cas._proto'] = $app->protect(function ($name) use ($app) {
-            return $app->share(function () use ($app, $name) {
+        $app['security.authentication_provider.cas._proto'] = $app->protect(function ($name, $options) use ($app) {
+            return $app->share(function () use ($app, $name, $options) {
                 return new CasAuthenticationProvider(
+                    $options['auth'],
                     $app['security.user_provider.'.$name],
                     $app['logger']
                 );
