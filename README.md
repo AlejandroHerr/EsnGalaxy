@@ -2,6 +2,7 @@ Silex-EsnGalaxySecurityServiceProvider
 ======================================
 A Service Provider for Silex to authenticate through the [ESN Galaxy](http://galaxy.esn.org) CAS server.
 With some *magic* extending classes could be used to authenticate with other CAS servers. Feel free to fork, edit and so.
+**Warning:** This library is still work in progress. Meaning that some components may misbehave a little bit.
 ## Instalation
 
 ```php
