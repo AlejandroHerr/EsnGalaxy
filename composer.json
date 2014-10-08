@@ -1,6 +1,6 @@
 {
     "name": "alejandroherr/silex-esngalaxysecurityserviceprovider",
-    "description": "Cas security service provider for silex to connect with the ESN Galaxy",
+    "description": "Cas security service provider for silex to authenticate with the ESN Galaxy",
     "license": "MIT",
     "authors": [
         {
