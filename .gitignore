@@ -4,3 +4,5 @@ public/views
 node_modules
 trash
 var/
+
+/vendor/
