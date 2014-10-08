@@ -26,13 +26,13 @@ class SpawnedUserProvider implements UserProviderInterface
     {
         $username = $token->getUser();
         $attributes = $token->getAttributes();
-        if(is_null($token->getRoles())){
+        if (is_null($token->getRoles())) {
             $roles = isset($attributes['roles']) ? $attributes['roles'] : null;
             unset($attributes['roles']);
-        }else{
+        } else {
             $roles = $token->getRoles();
         }
-        
+
         return new SpawnedUser($username, $attributes, $roles);
     }
     public function supportsClass($class)
