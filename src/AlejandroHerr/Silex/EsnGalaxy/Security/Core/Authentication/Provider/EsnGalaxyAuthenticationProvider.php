@@ -18,13 +18,7 @@ class EsnGalaxyAuthenticationProvider implements AuthenticationProviderInterface
 
     public function __construct(UserProviderInterface $userProvider, array $options = array())
     {
-        $defaultOptions = [
-             '*' => [
-                'Local.activeMember' => 'ROLE_USER',
-                'Local.regularBoardMember' => 'ROLE_BOARD',
-            ],
-        ];
-        $this->options = empty($options) ? $defaultOptions : $options;
+        $this->options = $options;
         $this->userProvider = $userProvider;
     }
 
