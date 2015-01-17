@@ -9,19 +9,25 @@ use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProvid
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Security\Core\Role\Role;
 
 class EsnGalaxyAuthenticationProvider implements AuthenticationProviderInterface
 {
     protected $userProvider;
     protected $options;
-    protected $logger;
-    //todo remove the checker, add options field, thanks!!
-    public function __construct($options, UserProviderInterface $userProvider, $logger)
+
+    public function __construct(UserProviderInterface $userProvider, array $options = array())
     {
-        $this->options = $options;
+        $defaultOptions = [
+             '*' => [
+                'Local.activeMember' => 'ROLE_USER',
+                'Local.regularBoardMember' => 'ROLE_BOARD',
+            ],
+        ];
+        $this->options = empty($options) ? $defaultOptions : $options;
         $this->userProvider = $userProvider;
-        $this->logger = $logger;
     }
+
     public function authenticate(TokenInterface $token)
     {
         if (!$this->supports($token)) {
@@ -31,29 +37,40 @@ class EsnGalaxyAuthenticationProvider implements AuthenticationProviderInterface
             empty($token->getCredentials())) {
             throw new BadCredentialsException('No pre-authenticated principal found in request.');
         }
-
-        $this->checkAuthentication($token);
-
+        $token = $this->checkAuthentication($token);
         try {
             $user = $this->userProvider->loadUserByUsername($token->getUser());
+            $user = $this->userProvider->updateUser($user, $token);
         } catch (UsernameNotFoundException $e) {
             $user = $this->userProvider->createUser($token);
         }
+        $token->setUser($user);
 
-        $validatedToken = new EsnGalaxyToken($user, $user->getAttributes(), $user->getRoles());
-
-        return $validatedToken;
+        return $token;
     }
 
     public function supports(TokenInterface $token)
     {
-        return $token instanceof CasToken;
+        return $token instanceof EsnGalaxyToken;
     }
+
     protected function checkAuthentication(CasToken $token)
     {
         $credentials = $token->getCredentials();
-        if (!($credentials['section'] == $this->options['section'])) {
-            throw new BadCredentialsException('Your section ain\'t authorized');
+        $validCredentials = $this->options;
+        $finalRoles = [];
+
+        foreach ($validCredentials as $section => $roles) {
+            if ($credentials['section'] != $section && '*' != $section) {
+                continue;
+            }
+            foreach ($roles as $role => $givenRole) {
+                if (in_array($role, $credentials['roles'])) {
+                    $finalRoles[] = new Role($givenRole);
+                }
+            }
         }
+
+        return new EsnGalaxyToken($token->getUser(), $token->getAttributes(), $finalRoles);
     }
 }

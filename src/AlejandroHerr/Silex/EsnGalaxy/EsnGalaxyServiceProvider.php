@@ -65,9 +65,8 @@ class EsnGalaxyServiceProvider implements ServiceProviderInterface
         $app['security.authentication_provider.esn_galaxy._proto'] = $app->protect(function ($name, $options) use ($app) {
             return $app->share(function () use ($app, $name, $options) {
                 return new EsnGalaxyAuthenticationProvider(
-                    $options['auth'],
                     $app['security.user_provider.'.$name],
-                    $app['logger']
+                    $options['auth']
                 );
             });
         });
