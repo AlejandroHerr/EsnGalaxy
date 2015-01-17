@@ -32,6 +32,9 @@ class EsnGalaxyServiceProvider implements ServiceProviderInterface
 
         $app['security.authentication_listener.esn_galaxy._proto'] = $app->protect(function ($name, $options) use ($app) {
             return $app->share(function () use ($app, $name, $options) {
+                if (!isset($options['cas_server']['base_url'])) {
+                    $options['cas_server']['base_url'] = 'galaxy.esn.org';
+                }
                 $app['jasig_cas_client'] = $app->share(function () use ($options, $app) {
                     return new JasigClient($options['cas_server']);
                 });

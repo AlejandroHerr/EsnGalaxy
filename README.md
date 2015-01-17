@@ -33,10 +33,10 @@ $app['security.firewalls'] = array(
             'anonymous' => true,
             //'login_path' => '/login', DEFAULT VALUE
             'cas_server' => array(
-                'base_url' => 'galaxy.esn.org',
-                //'context' => 'cas', DEFAULT VALUE
-                //'port' => '443', DEFAULT VALUE
-                //'validation_path' => '/validation' DEFAULT VALUE
+                'base_url' => 'galaxy.esn.org', // DEFAULT VALUE
+                'context' => 'cas', // DEFAULT VALUE
+                'port' => '443', // DEFAULT VALUE
+                'validation_path' => '/validation' // DEFAULT VALUE
             ),
             'auth' => array(
                 'section' => 'ES-BARC-UAB'
