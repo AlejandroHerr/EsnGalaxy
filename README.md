@@ -28,7 +28,7 @@ $app['security.firewalls'] = array(
         'pattern' => '^/login$'
     ),
     'main' => array(  
-        'cas' => array(   
+        'esn_galaxy' => array(   
             'pattern' => '^/',
             'anonymous' => true,
             //'login_path' => '/login', DEFAULT VALUE
