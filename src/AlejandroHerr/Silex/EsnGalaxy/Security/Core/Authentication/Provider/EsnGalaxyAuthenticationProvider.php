@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-class CasAuthenticationProvider implements AuthenticationProviderInterface
+class EsnGalaxyAuthenticationProvider implements AuthenticationProviderInterface
 {
     protected $userProvider;
     protected $options;
@@ -25,10 +25,10 @@ class CasAuthenticationProvider implements AuthenticationProviderInterface
     public function authenticate(TokenInterface $token)
     {
         if (!$this->supports($token)) {
-            return null;
+            return;
         }
         if (empty($token->getUser()) ||
-            empty($token->getCredentials())){
+            empty($token->getCredentials())) {
             throw new BadCredentialsException('No pre-authenticated principal found in request.');
         }
 

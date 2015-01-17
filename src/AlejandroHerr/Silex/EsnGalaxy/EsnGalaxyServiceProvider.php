@@ -2,7 +2,6 @@
 
 namespace AlejandroHerr\Silex\EsnGalaxy;
 
-use AlejandroHerr\Silex\EsnGalaxy\Security\Core\Authentication\Provider\CasAuthenticationProvider;
 use AlejandroHerr\Silex\EsnGalaxy\Security\Http\EntryPoint\CasAuthenticationEntryPoint;
 use AlejandroHerr\Silex\EsnGalaxy\Security\Http\Firewall\EsnGalaxyAuthenticationListener;
 use Silex\Application;
@@ -19,15 +18,15 @@ class EsnGalaxyServiceProvider implements ServiceProviderInterface
             if (!isset($app['security.authentication_provider.'.$name.'.cas'])) {
                 $app['security.authentication_provider.'.$name.'.cas'] = $app['security.authentication_provider.cas._proto']($name, $options);
             }
-            $app['security.authentication_entry_point.' . $name . '.cas'] = $app->share(function () use ($app, $options) {
-                return new CasAuthenticationEntryPoint($app['security.http_utils'],$options);
+            $app['security.authentication_entry_point.'.$name.'.cas'] = $app->share(function () use ($app, $options) {
+                return new CasAuthenticationEntryPoint($app['security.http_utils'], $options);
             });
 
             return array(
                 'security.authentication_provider.'.$name.'.cas',
                 'security.authentication_listener.'.$name.'.cas',
-                'security.authentication_entry_point.' . $name . '.cas',
-                'pre_auth'
+                'security.authentication_entry_point.'.$name.'.cas',
+                'pre_auth',
             );
         });
 
@@ -62,7 +61,7 @@ class EsnGalaxyServiceProvider implements ServiceProviderInterface
 
         $app['security.authentication_provider.cas._proto'] = $app->protect(function ($name, $options) use ($app) {
             return $app->share(function () use ($app, $name, $options) {
-                return new CasAuthenticationProvider(
+                return new EsnGalaxyAuthenticationProvider(
                     $options['auth'],
                     $app['security.user_provider.'.$name],
                     $app['logger']
