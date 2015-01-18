@@ -33,7 +33,7 @@ class EsnGalaxyAuthenticationProvider implements AuthenticationProviderInterface
         }
         $token = $this->checkAuthentication($token);
         try {
-            $user = $this->userProvider->loadUserByUsername($token->getUser());
+            $user = $this->userProvider->loadUserByUsername($token->getUsername());
             $user = $this->userProvider->updateUser($user, $token);
         } catch (UsernameNotFoundException $e) {
             $user = $this->userProvider->createUser($token);
