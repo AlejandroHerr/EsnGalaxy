@@ -16,22 +16,26 @@ class JasigClient implements CasClientInterface
 
     public function __construct($options)
     {
-        $this->options['base_url'] = $options['base_url'];
-        $this->options['context'] = isset($options['context']) ? $options['context'] : 'cas';
-        $this->options['port'] = isset($options['port']) ? $options['port'] : '443';
-        $this->options['validation_path'] = isset($options['validation_path']) ? $options['validation_path'] : '/validation';
-
+        // cas_server MUST be set, since contains base_url
+        $options['cas_server'] = array_merge([
+            'context' => 'cas',
+            'port' => '443',
+        ], $options['cas_server']);
+        $this->options = array_merge([
+            'check_path' => '/validation',
+            'login_path' => '/login',
+        ], $options);
         $this->buildServerUrl();
     }
 
     public function getLoginUrl(Request $request)
     {
-        $url = $this->serverUrl . '/login';
+        $url = $this->serverUrl.$this->options['login_path'];
 
         return $this->buildUrl(
             $url,
             array(
-                "service" => $this->getServiceUrl($request)
+                "service" => $this->getServiceUrl($request),
             )
         );
     }
@@ -63,7 +67,6 @@ class JasigClient implements CasClientInterface
      */
     protected function getValidation(Request $request)
     {
-
         $client = $this;
 
         $curl = new Curl();
@@ -80,7 +83,9 @@ class JasigClient implements CasClientInterface
     protected function ticketIsValid()
     {
         $authenticationSuccess = $this->response->filterXPath('//cas:authenticationSuccess');
-        if(!count($authenticationSuccess)) return false;
+        if (!count($authenticationSuccess)) {
+            return false;
+        }
         $this->response = $authenticationSuccess;
 
         return true;
@@ -88,29 +93,29 @@ class JasigClient implements CasClientInterface
 
     protected function buildServerUrl()
     {
-        $this->serverUrl = 'https://'.$this->options['base_url'].':' . $this->options['port'] . '/'.$this->options['context'];
+        $this->serverUrl = 'https://'.$this->options['cas_server']['base_url'].':'.$this->options['cas_server']['port'].'/'.$this->options['cas_server']['context'];
     }
     protected function getValidationUrl(Request $request)
     {
-        $url = $this->serverUrl . '/serviceValidate';
+        $url = $this->serverUrl.'/serviceValidate';
 
         return $this->buildUrl(
             $url,
             array(
                 "ticket" =>  $request->get('ticket'),
-                "service" => $this->getServiceUrl($request)
+                "service" => $this->getServiceUrl($request),
             )
         );
     }
 
     protected function getServiceUrl(Request $request)
     {
-        return $request->getSchemeAndHttpHost() . $request->getBaseUrl() . $this->options['validation_path'];
+        return $request->getSchemeAndHttpHost().$request->getBaseUrl().$this->options['check_path'];
     }
 
     private function buildUrl($url, $data = array())
     {
-        return $url . (empty($data) ? '' : '?' . http_build_query($data));
+        return $url.(empty($data) ? '' : '?'.http_build_query($data));
     }
 
     /**********/
@@ -121,8 +126,7 @@ class JasigClient implements CasClientInterface
     {
         $this->response = $this->response->filterXPath('//cas:authenticationFailure');
 
-        return sprintf('%s: %s',$this->getValidationErrorCode(),$this->getValidationErrorMsg());
-
+        return sprintf('%s: %s', $this->getValidationErrorCode(), $this->getValidationErrorMsg());
     }
     protected function getValidationErrorCode()
     {
@@ -133,5 +137,4 @@ class JasigClient implements CasClientInterface
     {
         return trim($this->response->text());
     }
-
 }
