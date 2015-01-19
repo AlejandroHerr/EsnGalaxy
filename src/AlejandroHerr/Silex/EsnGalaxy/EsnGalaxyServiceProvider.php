@@ -19,7 +19,7 @@ class EsnGalaxyServiceProvider implements ServiceProviderInterface
                 $app['security.authentication_provider.'.$name.'.esn_galaxy'] = $app['security.authentication_provider.esn_galaxy._proto']($name, $options);
             }
             $app['security.authentication_entry_point.'.$name.'.esn_galaxy'] = $app->share(function () use ($app, $options) {
-                return new CasAuthenticationEntryPoint($app['security.http_utils'], $options);
+                return new CasAuthenticationEntryPoint($app, $app['security.http_utils']);
             });
 
             return array(
@@ -36,7 +36,7 @@ class EsnGalaxyServiceProvider implements ServiceProviderInterface
                     $options['cas_server']['base_url'] = 'galaxy.esn.org';
                 }
                 $app['jasig_cas_client'] = $app->share(function () use ($options, $app) {
-                    return new JasigClient($options['cas_server']);
+                    return new JasigClient($options);
                 });
                 if (!isset($app['security.authentication.success_handler.'.$name.'.esn_galaxy'])) {
                     $app['security.authentication.success_handler.'.$name.'.esn_galaxy'] = $app['security.authentication.success_handler._proto']($name, $options);
