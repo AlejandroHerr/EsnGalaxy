@@ -57,15 +57,10 @@ $app['security.access_rules'] = array(
 
  ~~If you're using `DbalEsnGalaxyUserProvider` you need also to register the `DoctrineServiceProvider`. For example:~~
 
-~~
-$app['db.config'] = require_once ROOT . '/config/db.php';
-$app->register(new DoctrineServiceProvider(),$app['db.config']);
-~~
+### Login and validation
+You also must define routes for the login and validation paths. Here some examples:
 
-### ~~Login and validation~~
-~~You also must define routes for the login and validation paths. Here some examples:~~
-
-~~
+```php
 $app->match('/login', function () use ($app){		
 	$errormsg = null;
 	if($app['session']->has(SecurityContextInterface::AUTHENTICATION_ERROR)){
@@ -82,7 +77,7 @@ $app->match('/login', function () use ($app){
 	);
 });
 $app->match('/validation', function() use ($app){});
-~~
+```
 
 ## License
 Released under the MIT license. See the LICENSE file for details.
