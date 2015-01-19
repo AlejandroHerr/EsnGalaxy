@@ -23,24 +23,25 @@ $app->register(new SecurityServiceProvider());
 $app->register(new AlejandroHerr\Silex\EsnGalaxy\EsnGalaxyServiceProvider());
 
 $app['security.firewalls'] = array(
-    'login' => array(
-        'anonymous' => true,
-        'pattern' => '^/login$'
-    ),
     'main' => array(  
         'esn_galaxy' => array(   
-            'pattern' => '^/',
+            'pattern' => '^/.*$',
             'anonymous' => true,
-            //'login_path' => '/login', DEFAULT VALUE
-            'cas_server' => array(
-                'base_url' => 'galaxy.esn.org', // DEFAULT VALUE
-                'context' => 'cas', // DEFAULT VALUE
-                'port' => '443', // DEFAULT VALUE
-                'validation_path' => '/validation' // DEFAULT VALUE
-            ),
-            'auth' => array(
-                'section' => 'ES-BARC-UAB'
-            )
+            'esn_galaxy' => array(
+                'cas_server' => array(
+                    'base_url' => 'galaxy.esn.org',
+                    //'context' => 'cas',
+                    //'port' => 443
+                ),
+                //'check_path' => '/validation',
+                //'login_path' => '/login',
+                'auth' => array(
+                    'ES-BARC-UAB' => ['Local.webmaster' => 'ROLE_GOD'],
+                    {{SECTION}} => [
+                        {{GALAXY_ROLE}} => {{WEB_APP_ROLE}},
+                        ....
+                    ]
+                )
         ),
         'logout' => array('logout_path' => '/logout'),
         'users' => $app->share(function() use ($app){
@@ -48,13 +49,17 @@ $app['security.firewalls'] = array(
         })
     )
 );
+
+$app['security.access_rules'] = array(
+    array('^\/(?!login)', 'ROLE_USER'),
+);
 ```
 
-If you're using `DbalEsnGalaxyUserProvider` you need also to register the `DoctrineServiceProvider`. For example:
+ ~~If you're using `DbalEsnGalaxyUserProvider` you need also to register the `DoctrineServiceProvider`. For example:
 ```php
 $app['db.config'] = require_once ROOT . '/config/db.php';
 $app->register(new DoctrineServiceProvider(),$app['db.config']);
-```
+``` ~~
 
 ### Login and validation
 You also must define routes for the login and validation paths. Here some examples:
