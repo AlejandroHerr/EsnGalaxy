@@ -14,7 +14,7 @@ class CasToken extends AbstractToken
 
         $this->setUser($user);
         $this->setAttributes($attributes);
-        $this->setUserNew(false);
+        $this->userIsNew = false;
     }
 
     public function getCredentials()
