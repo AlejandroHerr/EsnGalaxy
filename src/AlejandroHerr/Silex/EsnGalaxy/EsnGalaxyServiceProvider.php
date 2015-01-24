@@ -2,6 +2,7 @@
 namespace AlejandroHerr\Silex\EsnGalaxy;
 
 use AlejandroHerr\Silex\EsnGalaxy\Security\Core\Authentication\Provider\EsnGalaxyAuthenticationProvider;
+use AlejandroHerr\Silex\EsnGalaxy\Security\Http\Authentication\CasAuthenticationSuccesHandler;
 use AlejandroHerr\Silex\EsnGalaxy\Security\Http\EntryPoint\CasAuthenticationEntryPoint;
 use AlejandroHerr\Silex\EsnGalaxy\Security\Http\Firewall\EsnGalaxyAuthenticationListener;
 use Silex\Application;
@@ -46,6 +47,14 @@ class EsnGalaxyServiceProvider implements ServiceProviderInterface
                     $app['security.authentication.failure_handler.'.$name.'.esn_galaxy'] = $app['security.authentication.failure_handler._proto']($name, $options);
                 }
 
+                if (!isset($options['permanent_user'])) {
+                    $app['security.authentication.success_handler.'.$name.'.esn_galaxy'] = $app['security.authentication.success_handler._proto']($name, $options);
+                } elseif (!$options['permanent_user']) {
+                    $app['security.authentication.success_handler.'.$name.'.esn_galaxy'] = $app['security.authentication.success_handler._proto']($name, $options);
+                } else {
+                    $app['security.authentication.success_handler.'.$name.'.esn_galaxy'] = $app['security.authentication.cas_success_handler._proto']($name, $options);
+                }
+
                 return new EsnGalaxyAuthenticationListener(
                     $app['jasig_cas_client'],
                     $app['security'],
@@ -77,6 +86,18 @@ class EsnGalaxyServiceProvider implements ServiceProviderInterface
                     $app['security.user_provider.'.$name],
                     $options['auth']
                 );
+            });
+        });
+
+        $app['security.authentication.cas_success_handler._proto'] = $app->protect(function ($name, $options) use ($app) {
+            return $app->share(function () use ($name, $options, $app) {
+                $handler = new CasAuthenticationSuccesHandler(
+                    $app['security.http_utils'],
+                    $options
+                );
+                $handler->setProviderKey($name);
+
+                return $handler;
             });
         });
     }
