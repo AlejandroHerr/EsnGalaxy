@@ -17,8 +17,8 @@
         "php-curl-class/php-curl-class" : "*"
     },
     "autoload": {
-        "psr-0": {
-            "AlejandroHerr\\Silex": "src/"
+        "psr-4": {
+            "AlejandroHerr\\Silex\\EsnGalaxy\\": ""
         }
     }
 }
