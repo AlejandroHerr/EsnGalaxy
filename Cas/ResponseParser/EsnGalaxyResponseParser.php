@@ -3,7 +3,7 @@ namespace AlejandroHerr\Silex\EsnGalaxy\Cas\ResponseParser;
 
 use Symfony\Component\DomCrawler\Crawler;
 
-class EsnGalaxyResponseParser implements CasTokenParserInterface
+class EsnGalaxyResponseParser implements CasResponseParserInterface
 {
     protected $username;
     protected $roles = array();
