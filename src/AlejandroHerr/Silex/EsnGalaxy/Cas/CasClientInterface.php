@@ -1,6 +1,5 @@
 <?php
-
-namespace AlejandroHerr\Silex\EsnGalaxy;
+namespace AlejandroHerr\Silex\EsnGalaxy\Cas;
 
 use Symfony\Component\HttpFoundation\Request;
 

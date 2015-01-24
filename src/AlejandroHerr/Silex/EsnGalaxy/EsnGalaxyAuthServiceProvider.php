@@ -1,6 +1,7 @@
 <?php
 namespace AlejandroHerr\Silex\EsnGalaxy;
 
+use AlejandroHerr\Silex\EsnGalaxy\Cas\JasigClient;
 use AlejandroHerr\Silex\EsnGalaxy\Security\Core\Authentication\Provider\EsnGalaxyAuthenticationProvider;
 use AlejandroHerr\Silex\EsnGalaxy\Security\Http\Authentication\CasAuthenticationSuccesHandler;
 use AlejandroHerr\Silex\EsnGalaxy\Security\Http\EntryPoint\CasAuthenticationEntryPoint;
@@ -8,7 +9,7 @@ use AlejandroHerr\Silex\EsnGalaxy\Security\Http\Firewall\EsnGalaxyAuthentication
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
-class EsnGalaxyServiceProvider implements ServiceProviderInterface
+class EsnGalaxyAuthServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
