@@ -8,7 +8,7 @@ use Curl\Curl;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\DomCrawler\Crawler;
 
-class JasigClient implements CasClientInerface
+class JasigClient implements CasClientInterface
 {
     protected $responseParser;
     protected $serverUrl;
