@@ -1,21 +1,24 @@
 <?php
-namespace AlejandroHerr\Silex\EsnGalaxy;
+namespace AlejandroHerr\Silex\EsnGalaxy\Cas;
 
+use AlejandroHerr\Silex\EsnGalaxy\Cas\ResponseParser\CasResponseParserInterface;
 use AlejandroHerr\Silex\EsnGalaxy\Exception\CasCurlException;
 use AlejandroHerr\Silex\EsnGalaxy\Security\Core\Exception\CasAuthenticationException;
 use Curl\Curl;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\DomCrawler\Crawler;
 
-class JasigClient implements CasClientInterface
+class JasigClient implements CasClientInerface
 {
+    protected $responseParser;
     protected $serverUrl;
     protected $validationUrl;
     protected $response;
     protected $options;
 
-    public function __construct($options)
+    public function __construct(CasResponseParserInterface $responseParser, array $options = array())
     {
+        $this->responseParser = $responseParser;
         // cas_server MUST be set, since contains base_url
         $options['cas_server'] = array_merge([
             'context' => 'cas',
@@ -52,9 +55,7 @@ class JasigClient implements CasClientInterface
             throw new CasAuthenticationException($this->getValidationError());
         }
 
-        $responseParser = new ResponseParser\EsnGalaxyResponseParser();
-
-        return $responseParser->getTokenData($this->response);
+        return $this->responseParser->getTokenData($this->response);
     }
     public function isValidationRequest(Request $request)
     {

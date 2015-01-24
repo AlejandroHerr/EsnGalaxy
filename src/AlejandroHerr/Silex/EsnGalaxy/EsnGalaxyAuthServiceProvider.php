@@ -2,6 +2,7 @@
 namespace AlejandroHerr\Silex\EsnGalaxy;
 
 use AlejandroHerr\Silex\EsnGalaxy\Cas\JasigClient;
+use AlejandroHerr\Silex\EsnGalaxy\Cas\ResponseParser\EsnGalaxyResponseParser;
 use AlejandroHerr\Silex\EsnGalaxy\Security\Core\Authentication\Provider\EsnGalaxyAuthenticationProvider;
 use AlejandroHerr\Silex\EsnGalaxy\Security\Http\Authentication\CasAuthenticationSuccesHandler;
 use AlejandroHerr\Silex\EsnGalaxy\Security\Http\EntryPoint\CasAuthenticationEntryPoint;
@@ -38,7 +39,7 @@ class EsnGalaxyAuthServiceProvider implements ServiceProviderInterface
                     $options['cas_server']['base_url'] = 'galaxy.esn.org';
                 }
                 $app['jasig_cas_client'] = $app->share(function () use ($options, $app) {
-                    return new JasigClient($options);
+                    return new JasigClient(new EsnGalaxyResponseParser(), $options);
                 });
                 if (!isset($app['security.authentication.success_handler.'.$name.'.esn_galaxy'])) {
                     $app['security.authentication.success_handler.'.$name.'.esn_galaxy'] = $app['security.authentication.success_handler._proto']($name, $options);
