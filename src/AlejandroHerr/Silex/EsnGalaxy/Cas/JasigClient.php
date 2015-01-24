@@ -1,8 +1,8 @@
 <?php
 namespace AlejandroHerr\Silex\EsnGalaxy\Cas;
 
+use AlejandroHerr\Silex\EsnGalaxy\Cas\Exception\CasCurlException;
 use AlejandroHerr\Silex\EsnGalaxy\Cas\ResponseParser\CasResponseParserInterface;
-use AlejandroHerr\Silex\EsnGalaxy\Exception\CasCurlException;
 use AlejandroHerr\Silex\EsnGalaxy\Security\Core\Exception\CasAuthenticationException;
 use Curl\Curl;
 use Symfony\Component\HttpFoundation\Request;
