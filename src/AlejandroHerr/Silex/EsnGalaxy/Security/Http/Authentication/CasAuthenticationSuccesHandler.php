@@ -7,7 +7,7 @@ class CasAuthenticationSuccesHandler extends DefaultAuthenticationSuccessHandler
 {
     public function onAuthenticationSuccess(Request $request, TokenInterface $token)
     {
-        if ($token->getUserNew()) {
+        if ($token->isUserNew()) {
             return $this->httpUtils->createRedirectResponse($request, $this->options['new_user_path']);
         }
 

@@ -27,18 +27,22 @@ class EsnGalaxyAuthenticationProvider implements AuthenticationProviderInterface
         if (!$this->supports($token)) {
             return;
         }
-        if (empty($token->getUser()) ||
-            empty($token->getCredentials())) {
+
+        if (empty($token->getUser()) || empty($token->getCredentials())) {
             throw new BadCredentialsException('No pre-authenticated principal found in request.');
         }
+
         $token = $this->checkAuthentication($token);
+
         try {
             $user = $this->userProvider->loadUserByUsername($token->getUsername());
             $user = $this->userProvider->updateUser($user, $token);
+            $token->setUser($user);
         } catch (UsernameNotFoundException $e) {
             $user = $this->userProvider->createUser($token);
+            $token->setUser($user);
+            $token->setUserIsNew(true);
         }
-        $token->setUser($user);
 
         return $token;
     }
