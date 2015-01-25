@@ -35,6 +35,7 @@ $app['security.firewalls'] = array(
                 ),
                 //'check_path' => '/validation',
                 //'login_path' => '/login',
+                // 'first_login_path' => '/welcome_user'
                 'auth' => array(
                     'ES-BARC-UAB' => ['Local.webmaster' => 'ROLE_GOD'],
                     {{SECTION}} => [

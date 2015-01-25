@@ -49,12 +49,8 @@ class EsnGalaxyAuthServiceProvider implements ServiceProviderInterface
                     $app['security.authentication.failure_handler.'.$name.'.esn_galaxy'] = $app['security.authentication.failure_handler._proto']($name, $options);
                 }
 
-                if (!isset($options['permanent_user'])) {
+                if (isset($options['first_login_path'])) {
                     $app['security.authentication.success_handler.'.$name.'.esn_galaxy'] = $app['security.authentication.success_handler._proto']($name, $options);
-                } elseif (!$options['permanent_user']) {
-                    $app['security.authentication.success_handler.'.$name.'.esn_galaxy'] = $app['security.authentication.success_handler._proto']($name, $options);
-                } else {
-                    $app['security.authentication.success_handler.'.$name.'.esn_galaxy'] = $app['security.authentication.cas_success_handler._proto']($name, $options);
                 }
 
                 return new EsnGalaxyAuthenticationListener(
