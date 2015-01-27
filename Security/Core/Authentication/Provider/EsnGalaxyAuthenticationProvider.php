@@ -8,6 +8,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\Role\Role;
 
@@ -27,18 +28,27 @@ class EsnGalaxyAuthenticationProvider implements AuthenticationProviderInterface
         if (!$this->supports($token)) {
             return;
         }
-        if (empty($token->getUser()) ||
-            empty($token->getCredentials())) {
-            throw new BadCredentialsException('No pre-authenticated principal found in request.');
+
+        $user = $token->getUser();
+        if (!$user instanceof UserInterface) {
+            if (null === $user || empty($token->getCredentials())) {
+                throw new BadCredentialsException('Nao pre-authenticated data found.');
+            }
+
+            $token = $this->checkAuthentication($token);
+
+            try {
+                $user = $this->userProvider->loadUserByUsername($token->getUsername());
+                $user = $this->userProvider->updateUser($user, $token);
+                $token->setUser($user);
+            } catch (UsernameNotFoundException $e) {
+                $user = $this->userProvider->createUser($token);
+                $token->setUser($user);
+                $token->setUserIsNew(true);
+            }
         }
-        $token = $this->checkAuthentication($token);
-        try {
-            $user = $this->userProvider->loadUserByUsername($token->getUsername());
-            $user = $this->userProvider->updateUser($user, $token);
-        } catch (UsernameNotFoundException $e) {
-            $user = $this->userProvider->createUser($token);
-        }
-        $token->setUser($user);
+
+        $token->isAuthenticated(true);
 
         return $token;
     }
@@ -55,8 +65,14 @@ class EsnGalaxyAuthenticationProvider implements AuthenticationProviderInterface
         $finalRoles = [];
 
         foreach ($validCredentials as $section => $roles) {
-            if ($credentials['section'] != $section && '*' != $section) {
-                continue;
+            if ('/' !== $section) {
+                if ($credentials['section'] != $section && '*' != $section) {
+                    continue;
+                }
+            } else {
+                if (1 !== preg_match($section, $credentials['section'])) {
+                    continue;
+                }
             }
             foreach ($roles as $role => $givenRole) {
                 if (in_array($role, $credentials['roles'])) {

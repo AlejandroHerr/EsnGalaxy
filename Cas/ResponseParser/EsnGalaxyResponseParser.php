@@ -1,6 +1,5 @@
 <?php
-
-namespace AlejandroHerr\Silex\EsnGalaxy\ResponseParser;
+namespace AlejandroHerr\Silex\EsnGalaxy\Cas\ResponseParser;
 
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -52,7 +51,7 @@ class EsnGalaxyResponseParser implements CasResponseParserInterface
         if (count($attributes)) {
             foreach ($attributes as $attribute) {
                 $nodeName = $this->cleanNodeName($attribute->nodeName);
-                if (!(false === strpos($nodeName,'roles'))||!(false === strpos($nodeName,'attraStyle'))) {
+                if (!(false === strpos($nodeName, 'roles')) || !(false === strpos($nodeName, 'attraStyle'))) {
                     continue;
                 }
                 $this->attributes[$nodeName] = $attribute->nodeValue;
@@ -60,14 +59,13 @@ class EsnGalaxyResponseParser implements CasResponseParserInterface
         } else {
             $this->attributes = null;
         }
-
     }
 
     protected function cleanNodeName($nodeName)
     {
         $casRegex = '/cas:([\w]+)/';
         if (1 !== preg_match($casRegex, $nodeName, $matches)) {
-            return null;
+            return;
         }
 
         return $matches[1];

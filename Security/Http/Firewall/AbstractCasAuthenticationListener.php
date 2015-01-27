@@ -2,8 +2,8 @@
 
 namespace AlejandroHerr\Silex\EsnGalaxy\Security\Http\Firewall;
 
-use AlejandroHerr\Silex\EsnGalaxy\CasClientInterface;
-use AlejandroHerr\Silex\EsnGalaxy\Exception\CasCurlException;
+use AlejandroHerr\Silex\EsnGalaxy\Cas\CasClientInterface;
+use AlejandroHerr\Silex\EsnGalaxy\Cas\Exception\CasCurlException;
 use AlejandroHerr\Silex\EsnGalaxy\Security\Core\Exception\CasAuthenticationException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

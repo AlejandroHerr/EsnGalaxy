@@ -1,13 +1,16 @@
 <?php
 namespace AlejandroHerr\Silex\EsnGalaxy;
 
+use AlejandroHerr\Silex\EsnGalaxy\Cas\JasigClient;
+use AlejandroHerr\Silex\EsnGalaxy\Cas\ResponseParser\EsnGalaxyResponseParser;
 use AlejandroHerr\Silex\EsnGalaxy\Security\Core\Authentication\Provider\EsnGalaxyAuthenticationProvider;
+use AlejandroHerr\Silex\EsnGalaxy\Security\Http\Authentication\CasAuthenticationSuccesHandler;
 use AlejandroHerr\Silex\EsnGalaxy\Security\Http\EntryPoint\CasAuthenticationEntryPoint;
 use AlejandroHerr\Silex\EsnGalaxy\Security\Http\Firewall\EsnGalaxyAuthenticationListener;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
-class EsnGalaxyServiceProvider implements ServiceProviderInterface
+class EsnGalaxyAuthServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
@@ -32,11 +35,13 @@ class EsnGalaxyServiceProvider implements ServiceProviderInterface
 
         $app['security.authentication_listener.esn_galaxy._proto'] = $app->protect(function ($name, $options) use ($app) {
             return $app->share(function () use ($app, $name, $options) {
-                if (!isset($options['cas_server']['base_url'])) {
-                    $options['cas_server']['base_url'] = 'galaxy.esn.org';
-                }
+                $options['check_path'] = isset($options['check_path']) ? $options['check_path'] : '/cas/validation';
+                $app->match($options['check_path'], function () {});
+
                 $app['jasig_cas_client'] = $app->share(function () use ($options, $app) {
-                    return new JasigClient($options);
+                    $options['cas_server']['base_url'] = isset($options['cas_server']['base_url']) ? $options['cas_server']['base_url'] : 'galaxy.esn.org';
+
+                    return new JasigClient(new EsnGalaxyResponseParser(), $app['security.http_utils'], $options);
                 });
                 if (!isset($app['security.authentication.success_handler.'.$name.'.esn_galaxy'])) {
                     $app['security.authentication.success_handler.'.$name.'.esn_galaxy'] = $app['security.authentication.success_handler._proto']($name, $options);
@@ -44,6 +49,10 @@ class EsnGalaxyServiceProvider implements ServiceProviderInterface
 
                 if (!isset($app['security.authentication.failure_handler.'.$name.'.esn_galaxy'])) {
                     $app['security.authentication.failure_handler.'.$name.'.esn_galaxy'] = $app['security.authentication.failure_handler._proto']($name, $options);
+                }
+
+                if (isset($options['first_login_path'])) {
+                    $app['security.authentication.success_handler.'.$name.'.esn_galaxy'] = $app['security.authentication.cas_success_handler._proto']($name, $options);
                 }
 
                 return new EsnGalaxyAuthenticationListener(
@@ -77,6 +86,18 @@ class EsnGalaxyServiceProvider implements ServiceProviderInterface
                     $app['security.user_provider.'.$name],
                     $options['auth']
                 );
+            });
+        });
+
+        $app['security.authentication.cas_success_handler._proto'] = $app->protect(function ($name, $options) use ($app) {
+            return $app->share(function () use ($name, $options, $app) {
+                $handler = new CasAuthenticationSuccesHandler(
+                    $app['security.http_utils'],
+                    $options
+                );
+                $handler->setProviderKey($name);
+
+                return $handler;
             });
         });
     }
