@@ -9,7 +9,7 @@ With some *magic* extending classes could be used to authenticate with other CAS
 ```php
 {
     "require": {
-        "alejandroherr/silex-esngalaxysecurityserviceprovider": "dev-dev"
+        "alejandroherr/silex-esngalaxysecurityserviceprovider": "0.1.*@dev"
     }
 }
 ```
