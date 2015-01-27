@@ -1,6 +1,8 @@
 <?php
 namespace AlejandroHerr\Silex\EsnGalaxy\Security\Http\Authentication;
 
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Authentication\DefaultAuthenticationSuccessHandler;
 
 class CasAuthenticationSuccesHandler extends DefaultAuthenticationSuccessHandler
