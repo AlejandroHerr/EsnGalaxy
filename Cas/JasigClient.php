@@ -5,41 +5,42 @@ use AlejandroHerr\Silex\EsnGalaxy\Cas\Exception\CasCurlException;
 use AlejandroHerr\Silex\EsnGalaxy\Cas\ResponseParser\CasResponseParserInterface;
 use AlejandroHerr\Silex\EsnGalaxy\Security\Core\Exception\CasAuthenticationException;
 use Curl\Curl;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Http\HttpUtils;
 
 class JasigClient implements CasClientInterface
 {
     protected $responseParser;
+    protected $httpUtils;
     protected $serverUrl;
-    protected $validationUrl;
     protected $response;
     protected $options;
 
-    public function __construct(CasResponseParserInterface $responseParser, array $options = array())
+    public function __construct(CasResponseParserInterface $responseParser, HttpUtils $httpUtils, array $options = array())
     {
         $this->responseParser = $responseParser;
+        $this->httpUtils = $httpUtils;
+
         // cas_server MUST be set, since contains base_url
         $options['cas_server'] = array_merge([
             'context' => 'cas',
             'port' => '443',
+            'login_path' => '/login',
+            'validation_path' => '/serviceValidate',
         ], $options['cas_server']);
         $this->options = array_merge([
             'check_path' => '/validation',
-            'login_path' => '/login',
         ], $options);
-        $this->buildServerUrl();
+
+        $this->serverUrl = 'https://'.$this->options['cas_server']['base_url'].':'.$this->options['cas_server']['port'].'/'.$this->options['cas_server']['context'];
     }
 
     public function getLoginUrl(Request $request)
     {
-        $url = $this->serverUrl.$this->options['login_path'];
-
-        return $this->buildUrl(
-            $url,
-            array(
-                "service" => $this->getServiceUrl($request),
-            )
+        return $this->getCasServerRequest(
+            $this->options['cas_server']['login_path'],
+            ["service" => $this->httpUtils->generateUri($request, $this->options['check_path'])]
         );
     }
     /**
@@ -59,7 +60,7 @@ class JasigClient implements CasClientInterface
     }
     public function isValidationRequest(Request $request)
     {
-        return $request->query->has('ticket');
+        return $this->httpUtils->checkRequestPath($request, $this->options['check_path']) && $request->query->has('ticket');
     }
     /**
      * [getValidation description]
@@ -92,31 +93,25 @@ class JasigClient implements CasClientInterface
         return true;
     }
 
-    protected function buildServerUrl()
-    {
-        $this->serverUrl = 'https://'.$this->options['cas_server']['base_url'].':'.$this->options['cas_server']['port'].'/'.$this->options['cas_server']['context'];
-    }
     protected function getValidationUrl(Request $request)
     {
-        $url = $this->serverUrl.'/serviceValidate';
-
-        return $this->buildUrl(
-            $url,
-            array(
+        return $this->getCasServerRequest(
+            $this->options['cas_server']['validation_path'],
+            [
                 "ticket" =>  $request->get('ticket'),
-                "service" => $this->getServiceUrl($request),
-            )
+                "service" => $this->httpUtils->generateUri($request, $this->options['check_path'])
+            ]
         );
     }
 
-    protected function getServiceUrl(Request $request)
+    private function getCasServerRequest($path, array $parameters = array())
     {
-        return $request->getSchemeAndHttpHost().$request->getBaseUrl().$this->options['check_path'];
-    }
+        if ('/' !== $path[0]) {
+            $path = '/'.$path;
+        }
+        $request = Request::create($this->serverUrl.$path, 'GET', $parameters);
 
-    private function buildUrl($url, $data = array())
-    {
-        return $url.(empty($data) ? '' : '?'.http_build_query($data));
+        return $request->getUri();
     }
 
     /**********/
