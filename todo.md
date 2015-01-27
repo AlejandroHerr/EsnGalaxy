@@ -4,8 +4,8 @@
 - ~~[ ] CasAuthenticationSuccessHandler~~
   - ~~[ ] Make it more token-agnostic~~
 - [ ] EsnGalaxyAuthenticationProvider
-  - [ ] Accept regex as section
-  - [ ] Discriminate by country
+  - [x] Accept regex as section
+  - [x] Discriminate by country
 - [ ] Users
   - [ ] Refactor SpawnedUser/Provider
   - [ ] Something for users stored in propel

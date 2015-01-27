@@ -9,7 +9,6 @@ class EsnGalaxyToken extends CasToken
         return array(
             'roles' => $this->getAttribute('roles'),
             'section' => $this->getAttribute('sc'),
-            'country' => $this->getAttribute('country')
         );
     }
 }

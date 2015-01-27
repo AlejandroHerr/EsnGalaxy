@@ -65,8 +65,14 @@ class EsnGalaxyAuthenticationProvider implements AuthenticationProviderInterface
         $finalRoles = [];
 
         foreach ($validCredentials as $section => $roles) {
-            if ($credentials['section'] != $section && '*' != $section) {
-                continue;
+            if ('/' !== $section) {
+                if ($credentials['section'] != $section && '*' != $section) {
+                    continue;
+                }
+            } else {
+                if (1 !== preg_match($section, $credentials['section'])) {
+                    continue;
+                }
             }
             foreach ($roles as $role => $givenRole) {
                 if (in_array($role, $credentials['roles'])) {

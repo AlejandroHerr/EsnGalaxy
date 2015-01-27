@@ -60,6 +60,7 @@ $app['security.access_rules'] = array(
 ```
 ### first_login_path
 By adding a `first_login_path` (actually it could be a path or a route), when a logs in for the first time and a new user is created will be redirected to `first_login_path`.
+
 It could be useful if your application permanent and you want them to provide further information, or if the user are spawned every time to give them some information (or just saying hi).
 ### Auth
 The auth option controls which galaxy-roles from which section can access to the site. It's an array with the following strcture:
@@ -75,13 +76,33 @@ The auth option controls which galaxy-roles from which section can access to the
     ]
 ]
 ```
-If section is `*` means 'any section'.
-By default is:
+
+If section is `*` means 'any section'. Remember that **it can be a regex**. But to tell the Provider it's a regex it must start by `/`.
+
+By default the configuration is:
 ```php
 'auth' => [
     '*' => [
         'Local.activeMember' => 'ROLE_USER',
         'Local.regularBoardMember' => 'ROLE_BOARD',
+    ]
+]
+```
+#### Examples
+##### Allowing only a country
+```php
+'auth' => [
+    '/^ES/' => [
+        'Local.activeMember' => 'ROLE_USER',
+        'Local.regularBoardMember' => 'ROLE_BOARD',
+    ]
+]
+```
+##### Allowing only a National Board
+```php
+'auth' => [
+    '/^ES/' => [
+        'National.regularBoardMember' => 'ROLE_USER',
     ]
 ]
 ```
