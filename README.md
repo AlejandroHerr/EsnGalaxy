@@ -9,54 +9,82 @@ With some *magic* extending classes could be used to authenticate with other CAS
 ```php
 {
     "require": {
-        "alejandroherr/silex-esngalaxysecurityserviceprovider": "dev-master"
+        "alejandroherr/silex-esngalaxysecurityserviceprovider": "dev-dev"
     }
 }
 ```
 [More versions (if available)](https://packagist.org/packages/alejandroherr/silex-esngalaxysecurityserviceprovider)
 ## Configuration
-
+The comment lines are showing its default value. Only overrider if you need it.
 ```php
 $app->register(new Silex\Provider\SessionServiceProvider());
 $app->register(new SecurityServiceProvider());
 
 $app->register(new AlejandroHerr\Silex\EsnGalaxy\EsnGalaxyServiceProvider());
 
-$app['security.firewalls'] = array(
-    'main' => array(  
+$app['security.firewalls'] = [
+    'main' => [  
         'esn_galaxy' => array(   
             'pattern' => '^/.*$',
             'anonymous' => true,
-            'esn_galaxy' => array(
-                'cas_server' => array(
-                    'base_url' => 'galaxy.esn.org',
+            'esn_galaxy' => [
+                'cas_server' => [
+                    //'base_url' => 'galaxy.esn.org',
                     //'context' => 'cas',
                     //'port' => 443
-                ),
-                //'check_path' => '/validation',
+                    //'login_path' => '/login',
+                    //'validation_path' => '/serviceValidate'
+                ],
+                //'check_path' => '/cas/validation',
                 //'login_path' => '/login',
                 // 'first_login_path' => '/welcome_user'
-                'auth' => array(
-                    'ES-BARC-UAB' => ['Local.webmaster' => 'ROLE_GOD'],
-                    {{SECTION}} => [
-                        {{GALAXY_ROLE}} => {{WEB_APP_ROLE}},
-                        ....
-                    ]
-                )
-        ),
-        'logout' => array('logout_path' => '/logout'),
+                'auth' => [
+                    //'*' => [
+                    //        'Local.activeMember' => 'ROLE_USER',
+                    //        'Local.regularBoardMember' => 'ROLE_BOARD',
+                    //    ]
+                    //]
+                ]
+            ]
+        ],
+        'logout' => ['logout_path' => '/logout'], //if you want a logout
         'users' => $app->share(function() use ($app){
-            return new AlejandroHerr\Silex\EsnGalaxy\Security\Core\User\SpawnedUserProvider();
+            return new Your\UserProvider();
         })
-    )
-);
+    ]
+];
 
 $app['security.access_rules'] = array(
     array('^\/(?!login)', 'ROLE_USER'),
 );
 ```
-
- ~~If you're using `DbalEsnGalaxyUserProvider` you need also to register the `DoctrineServiceProvider`. For example:~~
+### first_login_path
+By adding a `first_login_path` (actually it could be a path or a route), when a logs in for the first time and a new user is created will be redirected to `first_login_path`.
+It could be useful if your application permanent and you want them to provide further information, or if the user are spawned every time to give them some information (or just saying hi).
+### Auth
+The auth option controls which galaxy-roles from which section can access to the site. It's an array with the following strcture:
+```php
+'auth' => [
+    'section1' => [
+        'galaxy_role1' => 'app_role1',
+        'galaxy_role2' => 'app_role2',
+    ],
+    'section2' => [
+        'galaxy_role1' => 'app_role1',
+        'galaxy_role3' => 'app_role2',
+    ]
+]
+```
+If section is `*` means 'any section'.
+By default is:
+```php
+'auth' => [
+    '*' => [
+        'Local.activeMember' => 'ROLE_USER',
+        'Local.regularBoardMember' => 'ROLE_BOARD',
+    ]
+]
+```
 
 ### Login and validation
 You also must define routes for the login and validation paths. Here some examples:
